@@ -21,25 +21,65 @@ class Database:
 
 class Quote:
 
-    def get_one_quote(self, connected, quote_number):
+    def __init__(self, db):
+        self.connected = db
+
+    def get_one(self, quote_id):
         sql = "select * from quotes where quote_id = %s"
-        connected.query(sql, quote_number)
-        return connected.cur.fetchone()
+        self.connected.query(sql, quote_id)
 
-    def get_all(self, connected):
+        return self.connected.cur.fetchone()
+
+    def get_all(self):
         sql = "select quote_id, message_text from quotes"
-        connected.query(sql)
-        return connected.cur.fetchall()
+        self.connected.query(sql)
 
-    def post_quote(self, connected, message_id, from_username, from_name, from_lastname, message_date_time,
-                   message_text):
+        return self.connected.cur.fetchall()
+
+    def save(self, message):
         sql = "insert into quotes (message_id, from_username, from_name, from_lastname, message_date_time, message_text) values (%s, %s, %s, %s, %s, %s)"
-        connected.query(sql, (message_id, from_username, from_name, from_lastname, message_date_time, message_text))
-        connected.connection.commit()
+        self.connected.query(sql, (
+            message.message_id,
+            message.from_user.username,
+            message.from_user.first_name,
+            message.from_user.last_name,
+            message.date,
+            message.text
+        ))
+        self.connected.connection.commit()
+
+        return self.last_index()
+
+    def get_by_message_id(self, message_id):
+        sql = "select * from quotes where message_id = %s"
+        self.connected.query(sql, message_id)
+
+        return self.connected.cur.fetchone()
+
+    def delete(self, quote_id):
+        sql = "delete from quotes where quote_id = %s"
+        self.connected.query(sql, quote_id)
+        self.connected.connection.commit()
+
         return True
 
-    def delete_quote(self, connected, quote_id):
-        sql = "delete from quotes where quote_id = %s"
-        connected.query(sql, quote_id)
-        connected.connection.commit()
-        return True
+    def last_index(self):
+        sql = "select last_insert_id()"
+        self.connected.query(sql)
+
+        return self.connected.cur.fetchone()['last_insert_id()']
+
+    def random(self):
+        sql = "select * from quotes order by rand() limit 1"
+        self.connected.query(sql)
+
+        return self.connected.cur.fetchone()
+
+# for testing
+# db = Database('localhost', 'quotes_bot', 's5t7r2o5n3g2P0a0s%sword', 'quotes')
+# ab = Quote()
+# print(ab.get_quote_by_message_id(db, 452))
+# print(ab.count_rows(db))
+# print(ab.random_mistake(db))
+#
+# print(ab.post_quote(db, '455', '@minkika', 'lyub', 'NULL', '2020-12-01 17:46:34', 'Текст сообщения1'))
