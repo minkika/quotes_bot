@@ -74,12 +74,3 @@ class Quote:
         self.connected.query(sql)
 
         return self.connected.cur.fetchone()
-
-# for testing
-# db = Database('localhost', 'quotes_bot', 's5t7r2o5n3g2P0a0s%sword', 'quotes')
-# ab = Quote()
-# print(ab.get_quote_by_message_id(db, 452))
-# print(ab.count_rows(db))
-# print(ab.random_mistake(db))
-#
-# print(ab.post_quote(db, '455', '@minkika', 'lyub', 'NULL', '2020-12-01 17:46:34', 'Текст сообщения1'))

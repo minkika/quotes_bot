@@ -6,7 +6,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 
 from config import API_TOKEN, GROUP_ID, DB_USER, DB_PASSWORD, BOT_USER_ID, DB_SCHEMA, SAVE_CONFIRMATION_STICKER, \
-    REACTION_STRING, DB_HOST, MAMA_ID
+    REACTION_STRING, DB_HOST, MAMA_ID, DELETION_STRING
 from db_handle import Database, Quote
 
 # Configure logging
@@ -123,7 +123,7 @@ async def return_quote(message: types.ForceReply):
 
 
 @dp.message_handler(
-    lambda message: message.chat.id in GROUP_ID and compile(rf'^{REACTION_STRING}а$').search(message.text))
+    lambda message: message.chat.id in GROUP_ID and compile(rf'^{REACTION_STRING}a$').search(message.text))
 async def return_list(message: types.ForceReply):
     response = Quote(db).get_all()
 
@@ -136,7 +136,7 @@ async def return_list(message: types.ForceReply):
 
 
 @dp.message_handler(
-    lambda message: message.chat.id in GROUP_ID and message.from_user.id == MAMA_ID and compile(r'^удоли \d+$').search(
+    lambda message: message.chat.id in GROUP_ID and message.from_user.id == MAMA_ID and compile(rf'^{DELETION_STRING} \d+$').search(
         message.text))
 async def delete_quote(message: types.ForceReply):
     quote_id = findall('\d+', message.text)[0]
